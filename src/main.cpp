@@ -38,8 +38,8 @@ int main() {
   /**
    * TODO: Initialize the pid variable.
    */
-  pid.Init(0.05, 0.0002, 0.8);
-  pid_speed.Init(0.005, 0.0001, 0.0);
+  pid.Init(0.2, 2e-4, 1.0);
+  pid_speed.Init(0.1, 1e-3, 0.0);
 
 
 
@@ -69,7 +69,7 @@ int main() {
            *   Maybe use another PID controller to control the speed!
            */
           // Speed target and actuator limits
-          const double SPEED_TARGET = 50.0;
+          const double SPEED_TARGET = 20.0;
           const double ANGLE_MAX = 1.0;
           const double ANGLE_MIN = -1.0;
           const double THROTTLE_MAX = 1.0;
@@ -78,7 +78,8 @@ int main() {
           // Update errors and compute controller output
           // Since cte=cross_track_error, error used by PID is (0 - cte), which means (setpoint - measurement).
           pid.UpdateError(-cte);
-          steer_value = pid.TotalError();
+          // Incremental PID
+          steer_value += pid.TotalError();
           // Limit check
           if(steer_value < ANGLE_MIN)
           {
@@ -95,7 +96,8 @@ int main() {
           // Update errors and compute controller output
           double speed_error = speed_setpoint-speed;
           pid_speed.UpdateError(speed_error);
-          throttle_value = pid_speed.TotalError();
+          // Incremental PID
+          throttle_value += pid_speed.TotalError();
           // Limit check
           if(throttle_value < THROTTLE_MIN)
           {
