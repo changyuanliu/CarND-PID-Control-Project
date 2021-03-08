@@ -38,8 +38,8 @@ int main() {
   /**
    * TODO: Initialize the pid variable.
    */
-  pid.Init(0.20, 0.002, 1.0);
-  pid_speed.Init(0.03, 0.0002, 0.0);
+  pid.Init(0.05, 0.0002, 0.8);
+  pid_speed.Init(0.005, 0.0001, 0.0);
 
 
 
@@ -69,11 +69,11 @@ int main() {
            *   Maybe use another PID controller to control the speed!
            */
           // Speed target and actuator limits
-          const double SPEED_TARGET = 20.0;
+          const double SPEED_TARGET = 50.0;
           const double ANGLE_MAX = 1.0;
           const double ANGLE_MIN = -1.0;
-          const double THROTTLE_MAX = 0.5;
-          const double THROTTLE_MIN = 0.0;          
+          const double THROTTLE_MAX = 1.0;
+          const double THROTTLE_MIN = -0.2;          
           
           // Update errors and compute controller output
           // Since cte=cross_track_error, error used by PID is (0 - cte), which means (setpoint - measurement).
