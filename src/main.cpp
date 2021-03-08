@@ -34,12 +34,16 @@ int main() {
   uWS::Hub h;
 
   PID pid;
+  PID pid_speed;
   /**
    * TODO: Initialize the pid variable.
    */
-  pid.Init(0.20, 0.0002, 0.04);
+  pid.Init(0.20, 0.002, 1.0);
+  pid_speed.Init(0.03, 0.0002, 0.0);
 
-  h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
+
+
+  h.onMessage([&pid, &pid_speed](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
                      uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
@@ -64,26 +68,53 @@ int main() {
            * NOTE: Feel free to play around with the throttle and speed.
            *   Maybe use another PID controller to control the speed!
            */
+          // Speed target and actuator limits
+          const double SPEED_TARGET = 20.0;
+          const double ANGLE_MAX = 1.0;
+          const double ANGLE_MIN = -1.0;
+          const double THROTTLE_MAX = 0.5;
+          const double THROTTLE_MIN = 0.0;          
+          
           // Update errors and compute controller output
-          pid.UpdateError(cte);
+          // Since cte=cross_track_error, error used by PID is (0 - cte), which means (setpoint - measurement).
+          pid.UpdateError(-cte);
           steer_value = pid.TotalError();
           // Limit check
-          if(steer_value < -1.0)
+          if(steer_value < ANGLE_MIN)
           {
-            steer_value = -1.0;
+            steer_value = ANGLE_MIN;
           }
-          else if(steer_value > 1.0)
+          else if(steer_value > ANGLE_MAX)
           {
-            steer_value = 1.0;
+            steer_value = ANGLE_MAX;
+          }
+
+          // Speed PID controller
+          double throttle_value;
+          double speed_setpoint = SPEED_TARGET;
+          // Update errors and compute controller output
+          double speed_error = speed_setpoint-speed;
+          pid_speed.UpdateError(speed_error);
+          throttle_value = pid_speed.TotalError();
+          // Limit check
+          if(throttle_value < THROTTLE_MIN)
+          {
+            throttle_value = THROTTLE_MIN;
+          }
+          else if(throttle_value > THROTTLE_MAX)
+          {
+            throttle_value = THROTTLE_MAX;
           }
 
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value 
                     << std::endl;
+          std::cout << "Speed Error: " << speed_error << " Throtthle Value: " << throttle_value 
+                    << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.1;
+          msgJson["throttle"] = throttle_value;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
