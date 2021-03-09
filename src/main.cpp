@@ -38,8 +38,8 @@ int main() {
   /**
    * TODO: Initialize the pid variable.
    */
-  pid.Init(0.2, 2e-4, 1.0);
-  pid_speed.Init(0.1, 1e-3, 0.0);
+  pid.Init(0.05, 2.2e-3, 1.1);
+  pid_speed.Init(0.3, 3.0e-3, 0.0);
 
 
 
@@ -61,7 +61,7 @@ int main() {
           double cte = std::stod(j[1]["cte"].get<string>());
           double speed = std::stod(j[1]["speed"].get<string>());
           double angle = std::stod(j[1]["steering_angle"].get<string>());
-          double steer_value;
+          double steer_value = angle;
           /**
            * TODO: Calculate steering value here, remember the steering value is
            *   [-1, 1].
@@ -69,18 +69,30 @@ int main() {
            *   Maybe use another PID controller to control the speed!
            */
           // Speed target and actuator limits
-          const double SPEED_TARGET = 20.0;
+          const double SPEED_TARGET = 30.0;
           const double ANGLE_MAX = 1.0;
           const double ANGLE_MIN = -1.0;
+          const double ANGLE_DELTA_MAX = deg2rad(4.0);
           const double THROTTLE_MAX = 1.0;
-          const double THROTTLE_MIN = -0.2;          
+          const double THROTTLE_MIN = 0.0;
+          const double THROTTLE_DELTA_MAX = 0.05;          
           
           // Update errors and compute controller output
           // Since cte=cross_track_error, error used by PID is (0 - cte), which means (setpoint - measurement).
           pid.UpdateError(-cte);
           // Incremental PID
-          steer_value += pid.TotalError();
-          // Limit check
+          double pid_out = pid.TotalError();
+          // Limit check on controller output
+          if(pid_out < -ANGLE_DELTA_MAX)
+          {
+            pid_out = -ANGLE_DELTA_MAX;
+          }
+          else if(pid_out > ANGLE_DELTA_MAX)
+          {
+            pid_out = ANGLE_DELTA_MAX;
+          }
+          steer_value += pid_out;
+          // Limit check on steer_value
           if(steer_value < ANGLE_MIN)
           {
             steer_value = ANGLE_MIN;
@@ -91,14 +103,24 @@ int main() {
           }
 
           // Speed PID controller
-          double throttle_value;
-          double speed_setpoint = SPEED_TARGET;
+          double throttle_value = std::stod(j[1]["throttle"].get<string>());
+    
           // Update errors and compute controller output
-          double speed_error = speed_setpoint-speed;
+          double speed_error = SPEED_TARGET - speed;
           pid_speed.UpdateError(speed_error);
           // Incremental PID
-          throttle_value += pid_speed.TotalError();
-          // Limit check
+          double pid_speed_out = pid_speed.TotalError();
+          // Limit check on controller output
+          if(pid_speed_out < -THROTTLE_DELTA_MAX)
+          {
+            pid_speed_out = -THROTTLE_DELTA_MAX;
+          }
+          else if(pid_out > THROTTLE_DELTA_MAX)
+          {
+            pid_speed_out = THROTTLE_DELTA_MAX;
+          }
+          throttle_value += pid_speed_out;          
+          // Limit check on throttle_value
           if(throttle_value < THROTTLE_MIN)
           {
             throttle_value = THROTTLE_MIN;
