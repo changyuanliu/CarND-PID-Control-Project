@@ -61,7 +61,7 @@ int main() {
           double cte = std::stod(j[1]["cte"].get<string>());
           double speed = std::stod(j[1]["speed"].get<string>());
           double angle = std::stod(j[1]["steering_angle"].get<string>());
-          double steer_value = angle;
+          double steer_value;
           /**
            * TODO: Calculate steering value here, remember the steering value is
            *   [-1, 1].
@@ -72,16 +72,14 @@ int main() {
           const double SPEED_TARGET = 35.0;
           const double ANGLE_MAX = 1.0;
           const double ANGLE_MIN = -1.0;
-          const double ANGLE_DELTA_MAX = deg2rad(4.0);
           const double THROTTLE_MAX = 1.0;
           const double THROTTLE_MIN = -1.0;          
           
           // Update errors and compute controller output
           // Since cte=cross_track_error, error used by PID is (0 - cte), which means (setpoint - measurement).
           pid.UpdateError(-cte);
-          // Incremental PID
-          double steer_value = pid.TotalError();
-          // Limit check on steer_value
+          steer_value = pid.TotalError();
+          // Limit check
           if(steer_value < ANGLE_MIN)
           {
             steer_value = ANGLE_MIN;
@@ -96,9 +94,8 @@ int main() {
           // Update errors and compute controller output
           double speed_error = SPEED_TARGET-speed;
           pid_speed.UpdateError(speed_error);
-          // Incremental PID
-          double throttle_value = pid_speed.TotalError();      
-          // Limit check on throttle_value
+          throttle_value = pid_speed.TotalError();
+          // Limit check
           if(throttle_value < THROTTLE_MIN)
           {
             throttle_value = THROTTLE_MIN;

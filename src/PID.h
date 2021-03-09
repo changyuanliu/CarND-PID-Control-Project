@@ -38,9 +38,6 @@ class PID {
   double p_error;
   double i_error;
   double d_error;
-  // Added for incremental PID
-  double k_1_error;
-  double k_2_error;
 
   /**
    * PID Coefficients
