@@ -38,7 +38,7 @@ int main() {
   /**
    * TODO: Initialize the pid variable.
    */
-  pid.Init(0.10, 0.003, 1.2);
+  pid.Init(0.12, 0.003, 1.4);
   pid_speed.Init(0.006, 0.00007, 0.0);
 
 
@@ -69,7 +69,7 @@ int main() {
            *   Maybe use another PID controller to control the speed!
            */
           // Speed target and actuator limits
-          const double SPEED_TARGET = 30.0;
+          const double SPEED_TARGET = 35.0;
           const double ANGLE_MAX = 1.0;
           const double ANGLE_MIN = -1.0;
           const double THROTTLE_MAX = 1.0;
