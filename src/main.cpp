@@ -70,15 +70,17 @@ int main() {
            */
           // Speed target and actuator limits
           const double SPEED_TARGET = 35.0;
-          const double ANGLE_MAX = 1.0;
-          const double ANGLE_MIN = -1.0;
-          const double THROTTLE_MAX = 1.0;
-          const double THROTTLE_MIN = -1.0;          
+          const double ANGLE_MAX = deg2rad(30.0);
+          const double ANGLE_MIN = deg2rad(-30.0);
+          const double THROTTLE_MAX = 0.40;
+          const double THROTTLE_MIN = -0.40;          
           
           // Update errors and compute controller output
           // Since cte=cross_track_error, error used by PID is (0 - cte), which means (setpoint - measurement).
           pid.UpdateError(-cte);
           steer_value = pid.TotalError();
+          //
+          //steer_value = pid.TotalError() / (1.0 + fabs(angle));
           // Limit check
           if(steer_value < ANGLE_MIN)
           {
