@@ -21,7 +21,6 @@ Self-Driving Car Engineer Nanodegree Program
 The following table from the book [Modern Control Systems](https://www.pearson.com/us/higher-education/program/Dorf-Modern-Control-Systems-13th-Edition/PGM328731.html) is helpful for engineers to choose P, I, and D parameters.
 
 ![PID Tuning](PIDTuning.jpg)
-
 ### How to chose P, I, D
 
 I am a control engineer in the process industries. I used to use direct synthesis method to tune PID controllers, because process models are mostly obtainable in process industries. However, the car's model is not clear in this project, so I manually tuned the controllers.
